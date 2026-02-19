@@ -1,0 +1,78 @@
+{% include 'Inc/header.html' %}
+
+<div class="ui container">
+    <h1>Listado de Ambientes de Formacion</h1>
+    <table class="ui fixed single line celled table">
+        <thead>
+            <tr>
+                <th>Nombre Ambiente</th>
+                <th>Tipo Ambiente</th>
+                <th>Observaciones Ambiente</th>
+                <th>opciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for ambiente in ambientes %}
+            <tr>
+                <td>{{ ambiente.1 }}</td>
+                <td>{{ ambiente.2 }}</td>
+                <td> {{ambiente.3 }}</td>
+                <td>
+                    <form action="/Ambientes/EliminarAmbiente" method="post" id="formulario{{ ambiente.0 }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ ambiente.0 }}">
+                    </form>
+                    <a href="/Ambientes/ActualizarAmbiente/{{ambiente.0}}"><i class="edit icon"></i> </a>
+                    <a href="#" onclick="eliminarambiente('{{ ambiente.0}}')"><i class="trash icon"></i> </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<br>
+</form>
+{% if messages %}
+{% for mensaje in messages %}
+<div class="ui container" id="mensajes">
+    <div class="ui {{warning.tags}} message">
+        <i class="close icon"></i>
+        <div class="header">
+            {{mensaje}}
+        </div>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+    <div class="ui container">
+    </div>
+
+
+    <script>
+        function eliminarambiente(id) {
+            Swal.fire({
+                title: "¿esta seguro de eliminar este registro?",
+                text: "No podra recuperar este registro",
+                icon: "advertencia",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Si, eliminar"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $("#formulario" + id).submit()
+                }
+            });
+        }
+    </script>
+    {% include 'Inc/footer.html' %}
+
+    <script>
+    $(document).ready(function () {
+        $('.message .close').on('click', function () {
+            $(this).closest('.message').transition('fade');
+        });
+    });
+</script>

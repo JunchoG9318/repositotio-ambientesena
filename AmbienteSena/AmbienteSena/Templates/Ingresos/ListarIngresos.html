@@ -1,0 +1,90 @@
+{% include 'Inc/header.html' %}
+
+{% if messages %}
+{% for mensaje in messages %}
+<div class="ui container" id="mensajes">
+    <div class="ui {{ mensaje.tags }} message">
+        <i class="close icon"></i>
+        <div class="header">
+            {{ mensaje }}
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="ui container">
+    <h1>Listado de Ingresos</h1>
+    <table class="ui selectable celled table">
+        <thead>
+            <tr>
+                <th>Ambiente</th>
+                <th>Instructor</th>
+                <th>Fecha_hora_entrada</th>
+                
+                <th>Observación</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for ingreso in ingresos %}
+            <tr>
+                <td>{{ ingreso.ambiente.NombreAmbiente }}</td>
+                <td>{{ ingreso.instructor.NombreCompleto }}</td>
+                <td>{{ ingreso.fecha_hora_entrada }}</td>
+                
+                <td>{{ ingreso.Observacion }}</td>
+
+                <td>
+                    {% if not ingreso.fecha_hora_salida %}
+                    <form action="/Ingresos/RegistrarSalida" method="post" id="formulario{{ ingreso.id }}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" value="{{ ingreso.id }}">
+                        <button type="button" onclick="registrarSalida('{{ ingreso.id }}')" class="ui blue button">
+                            <i class="sign-out icon"></i> Registrar Salida
+                        </button>
+                    </form>
+                    {% else %}
+                    <span class="ui green label">Salida registrada</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+
+    function registrarSalida(id) {
+        Swal.fire({
+            title: "¿Registrar salida ahora?",
+            text: "Se registrará la fecha y hora actual como hora de salida",
+            icon: "warning",  // Corregido de "Advertencia" a "warning"
+            showCancelButton: true,
+            confirmButtonText: "¡Si, registrar!",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#formulario' + id).submit();
+            }
+        });
+    }
+
+
+</script>
+{% include 'Inc/footer.html' %}
+
+<script>
+    // Cerrar mensajes automáticamente
+    $(document).ready(function () {
+        $('.message .close').on('click', function () {
+            $(this).closest('.message').transition('fade');
+        });
+
+        // Inicializar dropdowns
+        $('.ui.dropdown').dropdown();
+    });
+</script>

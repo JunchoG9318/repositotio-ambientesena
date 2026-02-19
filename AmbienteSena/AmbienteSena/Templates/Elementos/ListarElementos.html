@@ -1,0 +1,239 @@
+{% load static %}
+
+{% include 'Inc/header.html' %}
+
+
+<div class="ui container">
+    {% if messages %}
+    {% for mensaje in messages %}
+    <div class="ui container" id="mensajes">
+        <div class="ui {{ mensaje.tags }} message">
+            <i class="close icon"></i>
+            <div class="header">
+                {{ mensaje }}
+            </div>
+        </div>
+    </div>
+    {%endfor%}
+    {% endif%}
+    <h1>Listado de Elementos del centro de formacion</h1>
+    <div class="ui link cards">
+        {% for dato in listadoelementos %}
+        <div class="card">
+            <div class="image">
+                <img src="{% static 'Img/elementos/' %}{{dato.Foto}}" style=" width: 100%; height: 200px; object-fit: cover;">
+            
+                
+            </div>
+            <div class="content">
+                <div class="header">{{ dato.Nombre}}</div>
+                <div class="meta">
+                    <a>{{ dato.Tipo }}</a>
+                </div>
+                <div class="description">
+                    {{ dato.Observaciones }}
+                    <hr>
+                    Nombre del ambiente: {{dato.ambiente.NombreAmbiente}}
+                    <hr>
+                    Tipo de ambiente: {{ dato.ambiente.TipoAmbiente }}
+                </div>
+            </div>
+            <div class="extra content">
+
+                
+                <!-- FORMULARIO PARA ELMINAR -->
+                <form action="/Elementos/EliminarElemento" method="post" id="formulario{{dato.id}}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" id="id" value="{{dato.id}}">
+                </form>
+
+
+
+                <a href="#" onclick="abrirModal('{{dato.id}}')" class="ui inverted blue button"> <i
+                        class="edit outline icon"></i>Editar
+                </a> <a href="#" onclick="eliminarelemento('{{dato.id}}')" class="ui inverted red button"> <i
+                        class=" outline trash alternate icon"></i>Eliminar
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- INICIA VENTANA MODAL -->
+<div class="ui modal" id="modalActualizarElemento">
+    <i class="close icon"></i>
+    <div class="header">
+        Formulario Para editar elementos
+    </div>
+    <div class="image content">
+        <div class="ui medium image">
+            <img src="" id="foto-anterior">
+        </div>
+        <div class="description">
+
+
+        </div>
+
+        <div class="ui container">
+
+            <form action="/Elementos/ActualizarElemento" method="post" enctype="multipart/form-data" id="form-elemento" class="ui form">
+                {% csrf_token %}
+                <div class="theree fields">
+                    <div class="field">
+                        <label for="nombre">Nombre del Elemento:</label>
+                        <input type="text" name="nombre" id="nombre">
+                        <input type="hidden" name="idelemento" id="idelemento">
+                    </div>
+                    <div class="field">
+                        <label for="tipo">Tipo de Elemento</label>
+                        <input type="text" name="tipo" id="tipo">
+                    </div>
+                    <div class="field">
+                        <label for="observaciones">Observacion del Elemento</label>
+                        <input type="text" name="observaciones" id="observaciones">
+                    </div>
+                </div>
+                <div class="two fields">
+                    <div class="field">
+                        <label for="ambiente">Seleccione un Ambiente:</label>
+                        <select name="ambiente" id="ambiente" class="ui search dropdown">
+                            <option value="">Seleccione un Ambiente de formacion</option>
+                            {% for dato in ambientes %}
+                            <option value="{{dato.id}}">{{dato.NombreAmbiente}}</option>
+
+                            {% endfor %}
+
+                        </select>
+                    </div>
+                    <div class="field">
+                        <label for="foto">Foto del Elemento</label>
+                        <input type="file" accept="image/*" name="foto" id="foto">
+                        <input type="hidden" name="nombre-foto" id="nombre-foto">
+                    </div>
+                </div>
+                <div>
+                    <button type="submit" class="ui inverted blue button">Actualizar Elemento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- <div class="actions">
+        <div class="ui black deny button">
+            Nope
+        </div>
+        <div class="ui positive right labeled icon button">
+            Yep, that's me
+            <i class="checkmark icon"></i>
+        </div>
+    </div> -->
+</div>
+<!-- FINAL VENTANA MODAL -->
+
+{% include 'Inc/footer.html' %}
+
+<script>
+    function abrirModal(id) {
+        $('#modalActualizarElemento').modal({
+            transition: 'horizontal flip'
+
+        }).modal('show');
+        // <!--url con la ruta api-->
+        let url = '/Elementos/APIConsultarElemento/' + id
+
+        fetch(url)
+            .then(datos => datos.json())
+            .then(datos => {
+                // console.log(datos);
+                document.getElementById('nombre').value = datos[0].fields.Nombre;
+                document.getElementById('tipo').value = datos[0].fields.Tipo;
+                document.getElementById('observaciones').value = datos[0].fields.Observaciones;
+                document.getElementById('foto-anterior').src = "{% static 'Img/elementos/' %}" + datos[0].fields.Foto;
+                document.getElementById('nombre-foto').value = datos[0].fields.Foto;
+                document.getElementById('idelemento').value = id;
+                //    CARGAR DATOS EN EL SELECT
+                $('#ambiente').dropdown('set selected',String(datos[0].fields.ambiente))
+            
+            })
+    }
+
+
+
+    $('#form-elemento').form({
+        inline: true,
+        fields: {
+            nombre: {
+                identifier: 'nombre',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar El Nombre Del elemento'
+                    }
+                ]
+            },
+            tipo: {
+                identifier: 'tipo',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar el tipo del elemento'
+                    }
+                ]
+            },
+            observacion: {
+                identifier: 'observacion',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar la observacion del elemento'
+                    }
+                ]
+            },
+            ambiente: {
+                identifier: 'ambiente',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar El ambiente'
+                    }
+                ]
+            }
+            // foto: {
+            //     identifier: 'foto',
+            //     rules: [
+            //         {
+            //             type: 'regExp[/(\.jgp|\.jpeg|\.png)$/i]',
+            //             prompt: 'Debe cargar una imagen valida (.jgp, .jpeg, .png) '
+            //         }
+            //     ]
+            // }
+        }
+    });
+
+    // FUNCION PARA ELMINAR ELEMENTOS
+
+    function eliminarelemento(id){
+        //alert("El id es" + id)
+        Swal.fire({
+            title: "¿Estas seguro de eleminra este elemento?",
+            text:"¡Al eliminar este elemento, no podra recuperarlo!",
+            icon:"warning",
+            showCancelButton: true,
+            confirmButtonColor:"#3085d6",
+            cancelButtonColor:"#d33",
+            confirmButtonText:"Eliminar",
+            cancelButtonText:"Cancelar"
+
+
+        }).then((result)=> {
+            if(result.isConfirmed){
+                $('#formulario' + id).submit()
+            }
+        })
+    }
+
+ 
+</script>

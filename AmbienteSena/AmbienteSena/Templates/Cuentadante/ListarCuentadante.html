@@ -1,0 +1,155 @@
+{% include 'Inc/header.html' %}
+
+{% if messages %}
+{% for mensaje in messages %}
+<div class="ui container" id="mensajes">
+    <div class="ui {{warning.tags}} message">
+        <i class="close icon"></i>
+        <div class="header">
+            {{mensaje}}
+        </div>
+
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+
+<div class="ui container">
+    <h1>Listado de cuentadante</h1>
+    <table class="ui selectable celled table">
+        <thead>
+            <th>Cuentadante</th>
+            <th>Area</th>
+            <th>Elemento</th>
+            <th>Fecha<br>Asignacion</th>
+            <th>Observaciones</th>
+            <th>Acciones</th>
+        </thead>
+
+        <tbody>
+            {% for cuentadante in cuentadantes %}
+            <tr>
+                <td>{{ cuentadante.instructor.NombreCompleto}}</td>
+                <td>{{ cuentadante.instructor.Area}}</td>
+                <td>{{ cuentadante.elemento.Nombre}}</td>
+                <td>{{ cuentadante.fechaasignacion}}</td>
+                <td>{{ cuentadante.observaciones}}</td>
+
+                <td>
+                    <form action="/Cuentadante/EliminarCuentadante" method="post" id="formulario{{cuentadante.id}}">
+                        {% csrf_token %}
+                        <input type="hidden" name="id" id="id" value="{{cuentadante.id}}">
+
+                    </form>
+
+                    <a href="#" onclick="eliminarCuentadante('{{cuentadante.id}}')"><i
+                            class="trash alternate icon"></i></a>
+                    <a href="#" onclick="abrirVentaModal('{{cuentadante.id}}')"><i class="edit alternate icon"></i></a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+</div>
+
+<!-- INICIA VENTANA MODAL -->
+<div class="ui modal" id="formulariocuentadante">
+    <div class="header">Formulario Para Actualizar Cuentadante</div>
+    <!-- FORMULARIO ACTUALIZAR CUENTADANTE -->
+    <div class="content">
+
+         <form action="/Cuentadante/ActualizarCuentadante" method="post" id="formulariocuentadante" class="ui form">
+        {% csrf_token %}
+        <input type="hidden" name="id_cuentadante" id="id_cuentadante">
+        <!-- PRIMERA FILA -->
+        <div class="two fields">
+            <div class="field">
+                <label for="instructor">Instructor</label>
+                <select name="instructor" id="instructor" class="ui dropdown">
+                    <option value="">Seleccione un Instructor</option>
+                    {% for instructor in instructores %}
+                    <option value="{{instructor.id}}">{{instructor.NombreCompleto}}</option>
+                    {% endfor%}
+                </select>
+            </div>
+            <div class="field">
+                <label for="elementos">Elementos:</label>
+                <select name="elementos" id="elementos" class="ui dropdown" >
+                    <option value="">Seleccione los elementos</option>
+                    {% for elemento in elementos %}
+                    <option value="{{elemento.id}}">{{elemento.Nombre}}</option>
+                    {% endfor%}
+                </select>
+            </div>
+        </div>
+        <!-- FIN PRIMERA FILA -->
+        <!-- SEGUNDA FILA -->
+        <div class="field">
+            <label for="observaciones">Observaciones:</label>
+            <textarea name="observaciones" id="observaciones"></textarea>
+        </div>
+        <!-- FIN SEGUNDA FILA -->
+       
+  
+        
+    </div>
+    <div class="actions">
+        
+        <button type="submit" class="ui inverted right icon blue button">
+            Registrar Cuentadante
+            <i class="checkmark icon"></i>
+        </button>
+        <div class="ui black deny cancel button">Cancelar</div>
+    </div>
+    </form>
+    <!-- FIN FORMULARIO -->
+</div>
+<!--FIN VENTANA MODAL-->
+
+
+
+
+{% include 'Inc/footer.html' %}
+
+<script>
+    function eliminarCuentadante(id) {
+        Swal.fire({
+            title: "¿Esta seguro de eliminar este cuentadante?",
+            Text: "¡Al eliminar este cuentadante, no podra recuperarlo!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "¡Si, eliminar!",
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $('#formulario' + id).submit();
+            }
+        })
+
+
+
+    }
+
+    function abrirVentaModal(id) {
+        $('#formulariocuentadante').modal({
+            autofocus: false,
+            transition: 'horizontal flip'
+        }).modal('show')
+        /*UTILIZACION DE LA API*/
+        let url = "/Cuentadante/APIConsultarCuentadante/" + id
+
+        fetch(url)
+        .then(datos => datos.json())
+        .then(datos => {
+            document.getElementById('id_cuentadante').value = id 
+            $('#instructor').dropdown('set selected', String(datos[0].fields.instructor))
+            $('#elementos').dropdown('set selected',String(datos[0].fields.elemento))
+            document.getElementById('observaciones').value= String(datos[0].fields.observaciones)
+        })
+    }
+
+</script>

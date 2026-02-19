@@ -1,0 +1,76 @@
+{% include 'Inc/header.html' %}
+
+{% if messages %}
+<div class="ui container" id="mensajes">
+    {% for mensaje in messages %}
+    <div class="ui {{ mensaje.tags }} message">
+        <i class="close icon"></i>
+        <div class="header">
+            {{ mensaje }}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<div class="ui container">
+    <h1>Registrar Asignacion de Cuentadante.</h1>
+
+    <form action="" method="post" id="formulariocuentadante" class="ui form">
+        {% csrf_token %}
+        <!-- PRIMERA FILA -->
+        <div class="two fields">
+            <div class="field">
+                <label for="instructor">Instructor</label>
+                <select name="instructor" id="instructor" class="ui dropdown">
+                    <option value="">Seleccione un Instructor</option>
+                    {% for instructor in instructores %}
+                    <option value="{{instructor.id}}">{{instructor.NombreCompleto}}</option>
+                    {% endfor%}
+                </select>
+            </div>
+            <div class="field">
+                <label for="elementos">Elementos:</label>
+                <select name="elementos[]" id="elementos" class="ui dropdown" multiple>
+                    <option value="">Seleccione los elementos</option>
+                    {% for elemento in elementos %}
+                    <option value="{{elemento.id}}">{{elemento.Nombre}}</option>
+                    {% endfor%}
+                </select>
+            </div>
+        </div>
+        <!-- FIN PRIMERA FILA -->
+        <!-- SEGUNDA FILA -->
+        <div class="field">
+            <label for="observaciones">Observaciones:</label>
+            <textarea name="observaciones" id="observaciones"></textarea>
+        </div>
+        <!-- FIN SEGUNDA FILA -->
+        <button type="submit" class="ui primary button">Registrar Cuentadante</button>
+    </form>
+</div>
+
+{% include 'Inc/footer.html' %}
+
+<script>
+    $("#formulariocuentadante").form({
+        inline: true,
+        fields: {
+            instructor: {
+                identifier: 'instructor',
+                rules: [{
+                    type: 'empty',
+                    prompt: 'Por Favor Seleccione a un instructor'
+                }]
+            },
+            elementos: {
+                identifier: 'elementos',
+                rules: [{
+                    type: 'empty',
+                    prompt: 'Por Favor Seleccione al Menos un Elemento'
+                }]
+            },
+      
+        }
+    })
+</script>

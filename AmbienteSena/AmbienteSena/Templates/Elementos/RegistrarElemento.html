@@ -1,0 +1,115 @@
+{% include 'Inc/header.html' %}
+
+<div class="ui container">
+    <h1>Formulario Para registrar elementos</h1>
+    <form action="" method="post" enctype="multipart/form-data" id="form-elemento" class="ui form">
+        {% csrf_token %}
+        <div class="theree fields">
+            <div class="field">
+                <label for="nombre">Nombre del Elemento:</label>
+                <input type="text" name="nombre" id="nombre" placeholder="Nombre del Elemento">
+            </div>
+            <div class="field">
+                <label for="tipo">Tipo de Elemento</label>
+                <input type="text" name="tipo" id="tipo" placeholder="Tipo de Elemento">
+            </div>
+            <div class="field">
+                <label for="observaciones">Observacion del Elemento</label>
+                <input type="text" name="observaciones" id="observaciones" placeholder="Observaciones del Elemento">
+            </div>
+        </div>
+        <div class="two fields">
+            <div class="field">
+                <label for="ambiente">Seleccione un Ambiente:</label>
+                <select name="ambiente" id="ambiente" class="ui search dropdown">
+                    <option value="">Seleccione un Ambiente de formacion</option>
+                    {% for dato in ambientes %}
+                    <option value="{{dato.id}}">{{dato.NombreAmbiente}}</option>
+
+                    {% endfor %}
+
+                </select>
+            </div>
+            <div class="field">
+                <label for="foto">Foto del Elemento</label>
+                <input type="file" accept="image/*" name="foto" id="foto">
+            </div>
+        </div>
+        <div>
+            <button type="submit" class="ui inverted green button">Guardar Elemento</button>
+        </div>
+    </form>
+</div>
+
+
+<br>
+{% if messages %}
+{% for mensaje in messages %}
+<div class="ui container" id="mensajes">
+    <div class="ui {{warning.tags}} message">
+        <i class="close icon"></i>
+        <div class="header">
+            {{mensaje}}
+        </div>
+
+    </div>
+    {% endfor %}
+    {% endif %}
+
+</div>
+</div>
+
+<script>
+    $('#form-elemento').form({
+        inline: true,
+        fields: {
+            nombre: {
+                identifier: 'nombre',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar El Nombre Del elemento'
+                    }
+                ]
+            },
+            tipo: {
+                identifier: 'tipo',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar el tipo del elemento'
+                    }
+                ]
+            },
+            observacion: {
+                identifier: 'observacion',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar la observacion del elemento'
+                    }
+                ]
+            },
+            ambiente: {
+                identifier: 'ambiente',
+                rules: [
+                    {
+                        type: 'empty',
+                        prompt: 'Debe Ingresar El ambiente'
+                    }
+                ]
+            },
+            foto: {
+                identifier: 'foto',
+                rules: [
+                    {
+                        type: 'regExp[/(\.jgp|\.jpeg|\.png)$/i]',
+                        prompt: 'Debe cargar una imagen valida (.jgp, .jpeg, .png) '
+                    }
+                ]
+            }
+        }
+    });
+</script>
+
+{% include 'Inc/footer.html' %}
