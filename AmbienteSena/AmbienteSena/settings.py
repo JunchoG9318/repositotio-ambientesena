@@ -15,8 +15,11 @@ from pathlib import Path
 # OS - PERMITE INTERACTUAR CON EL SISTEMA DE ARCHIVOS
 import os
 
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 # RUTA PARA LAS IMAGENES DE LOS ELEMENTOS
 RUTA_IMAGENES_ELEMENTOS = BASE_DIR / 'AmbienteSena'/'Public'/'Img'/'elementos'
@@ -26,12 +29,23 @@ RUTA_IMAGENES_ELEMENTOS = BASE_DIR / 'AmbienteSena'/'Public'/'Img'/'elementos'
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-kj7l)0lu4&65=8u0m#vsh+vt#kc7lipc+i0a$_4-zx#sq7$#0g'
+# toca modificarlo asi: SECRET_KEY = os.environ.get('SECRET_KEY')
+SECRET_KEY = os.environ.get('SECRET_KEY') 
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# DEBE CAMBIARSE A " 'RENDER' not in os.environ "
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','localhost','10.3.129.156']
+# dejar vacio asi = ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []
+
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME') 
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+# agregar:
+# RENDER_EXTERNAL_HOSTNAME= os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+#   IF RENDER_EXTERNAL_HOSTNAME: ALOWED_HOSTS.append (RENDER_EXTERNAL_HOSTNAME)
 
 
 # Application definition
@@ -54,6 +68,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # esto se agrega para que pueda funcionar el whitenoise
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'AmbienteSena.urls'
@@ -61,7 +77,7 @@ ROOT_URLCONF = 'AmbienteSena.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['AmbienteSena\Templates'],
+        'DIRS': ['AmbienteSena/Templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -82,12 +98,15 @@ WSGI_APPLICATION = 'AmbienteSena.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ambientesena',
-        'USER': 'root',
-        'PASSWORD': '123456789',
-        'HOST': 'localhost',
-        'PORT': '3306',
-        'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        'NAME': os.environ.get ('DB-NAME'),
+        'USER': os.environ.get('DB-USER'),
+        'PASSWORD': os.environ.get('DB-PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        }
+
     }
 }
 
@@ -127,8 +146,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS =[
-    'AmbienteSena\Public'
+STATIC_ROOT = BASE_DIR/'staticfiles'  # se agrega esto
+# se agrego esto de abajo
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATIC_STORAGE = 'whitwnoise.storage.compressedManifestStaticFilesStorage'
+
+STATICFILES_DIRS = [
+    'AmbienteSena/Public'
 ]
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

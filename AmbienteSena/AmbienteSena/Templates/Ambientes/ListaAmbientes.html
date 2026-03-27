@@ -14,16 +14,16 @@
         <tbody>
             {% for ambiente in ambientes %}
             <tr>
-                <td>{{ ambiente.1 }}</td>
-                <td>{{ ambiente.2 }}</td>
-                <td> {{ambiente.3 }}</td>
+                <td>{{ ambiente.NombreAmbiente}}</td>
+                <td>{{ ambiente.TipoAmbiente }}</td>
+                <td> {{ambiente.Observaciones }}</td>
                 <td>
-                    <form action="/Ambientes/EliminarAmbiente" method="post" id="formulario{{ ambiente.0 }}">
+                    <form action="/Ambientes/EliminarAmbiente" method="post" id="formulario{{ ambiente.id }}">
                         {% csrf_token %}
-                        <input type="hidden" name="id" value="{{ ambiente.0 }}">
+                        <input type="hidden" name="id" value="{{ ambiente.id }}">
                     </form>
-                    <a href="/Ambientes/ActualizarAmbiente/{{ambiente.0}}"><i class="edit icon"></i> </a>
-                    <a href="#" onclick="eliminarambiente('{{ ambiente.0}}')"><i class="trash icon"></i> </a>
+                    <a href="/Ambientes/ActualizarAmbiente/{{ambiente.id}}"><i class="edit icon"></i> </a>
+                    <a href="#" onclick="eliminarambiente('{{ ambiente.id}}')"><i class="trash icon"></i> </a>
                 </td>
             </tr>
             {% endfor %}
